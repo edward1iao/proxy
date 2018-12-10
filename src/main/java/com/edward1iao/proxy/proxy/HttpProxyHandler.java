@@ -37,6 +37,10 @@ public class HttpProxyHandler implements InvocationHandler {
         }
         System.out.println("接口方法调用结束");
         if(String.class == method.getReturnType()) return httpResponse.getResponseBody();
-        return JSONObject.parseObject(httpResponse.getResponseBody(),method.getReturnType());    
+        try {
+        	return JSONObject.parseObject(httpResponse.getResponseBody(),method.getReturnType());    
+		} catch (Exception e) {
+			throw new HttpProxyException("返回格式错误："+e.getMessage());
+		}
     }
 }

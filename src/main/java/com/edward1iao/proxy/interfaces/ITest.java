@@ -8,12 +8,12 @@ import com.edward1iao.proxy.model.TestModel;
 public interface ITest {
 	@HttpProxy(URL="https://www.baidu.com/")
 	String getTest0()throws HttpProxyException;
-	@HttpProxy(URL="http://localhost/framework/httpGetProxy/")
+	@HttpProxy(URL="http://179.29.224.89/framework/httpGetProxy/")
 	TestModel getTest1()throws HttpProxyException;
-	@HttpProxy(URL="http://localhost/framework/httpGetProxy/")
+	@HttpProxy(URL="http://172.29.224.89/framework/httpGetProxy/")
 	TestModel getTest3(TestModel testModel)throws HttpProxyException;
-	@HttpProxy(URL="http://localhost/framework/httpPostProxy/",requestMethod=EnumHttpRequestMethod.POST)
+	@HttpProxy(URL="http://172.29.224.89/framework/httpPostProxy/",requestMethod=EnumHttpRequestMethod.POST)
 	TestModel getTest2()throws HttpProxyException;
-	@HttpProxy(URL="http://localhost/framework/httpPostProxy/",requestMethod=EnumHttpRequestMethod.POST)
+	@HttpProxy(URL="http://172.29.224.89/framework/httpPostProxy/",requestMethod=EnumHttpRequestMethod.POST)
 	TestModel getTest4(TestModel testModel)throws HttpProxyException;
 }

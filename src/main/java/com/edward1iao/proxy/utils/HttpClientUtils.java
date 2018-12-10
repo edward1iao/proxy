@@ -69,7 +69,8 @@ public class HttpClientUtils {
 			e.printStackTrace();
 			String msg = "errorMsg:"+e.getMessage();
 			if(httpMethodBase!=null){
-				msg +=",statusCode:"+httpMethodBase.getStatusCode()+",responseBody:"+responseBody.toString();
+				if(httpMethodBase.getStatusLine()!=null)msg +=",statusCode:"+httpMethodBase.getStatusCode();
+				msg +=",responseBody:"+responseBody.toString();
 			}
 			return new HttpResponse(msg,EnumHttpStatus.STATUS500.getStatus());
 		} finally {
