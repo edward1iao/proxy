@@ -6,7 +6,8 @@ import com.edward1iao.proxy.exception.HttpProxyException;
 import com.edward1iao.proxy.model.TestModel;
 
 public interface ITest {
-	default String get(){return "test";}
+	@HttpProxy(URL="https://www.baidu.com/")
+	String getTest0()throws HttpProxyException;
 	@HttpProxy(URL="http://localhost/framework/httpGetProxy/")
 	TestModel getTest1()throws HttpProxyException;
 	@HttpProxy(URL="http://localhost/framework/httpGetProxy/")

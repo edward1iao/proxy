@@ -1,4 +1,4 @@
-# transfer
+# proxy
 
 #### project desc
 HTTP request interface encapsulation is implemented by proxy.

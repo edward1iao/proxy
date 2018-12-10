@@ -1,7 +1,6 @@
 package com.edward1iao.proxy.model;
 
-public class TestModel extends HttpResponse{
-	private static final long serialVersionUID = 4976965672126257721L;
+public class TestModel{
 	private String test1;
 	private String test2;
 	public String getTest1() {

@@ -9,44 +9,67 @@ import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 
 import com.alibaba.fastjson.JSONObject;
 import com.edward1iao.proxy.enums.EnumHttpRequestMethod;
 import com.edward1iao.proxy.enums.EnumHttpStatus;
+import com.edward1iao.proxy.exception.HttpProxyException;
 import com.edward1iao.proxy.model.HttpResponse;
 
+/**
+ * @author edward1iao
+ * @desc httpClient工具类
+ * @time 2018年12月10日 上午11:44:43
+ */
 public class HttpClientUtils {
 	
-	public static String send(EnumHttpRequestMethod enumHttpRequestMethod,String url,Map<String,String> requestHeader,Object object){
-		return EnumHttpRequestMethod.GET == enumHttpRequestMethod?doGet(url, requestHeader,object):doPost(url, requestHeader, object);
+	private static HttpMethodBase getHttpMethod(EnumHttpRequestMethod enumHttpRequestMethod,String url,Object object){
+		if(EnumHttpRequestMethod.GET == enumHttpRequestMethod){
+			String lastUrl = url+setParams(object);
+			System.out.println("url:"+lastUrl);
+			return new GetMethod(lastUrl);
+		}else if(EnumHttpRequestMethod.POST == enumHttpRequestMethod){
+			PostMethod postMethod = new PostMethod(url);
+			setParams(postMethod, object);
+			return postMethod;
+		}else{
+			throw new HttpProxyException("request method error");
+		}
 	}
 	
-	public static HttpResponse doGet1(String url,Map<String,String> requestHeader,Object object){
+	public static HttpResponse doGet(String url,Map<String,String> requestHeader,Object object){
+		return send(EnumHttpRequestMethod.GET,url,requestHeader,object);
+	}
+	public static HttpResponse doPost(String url,Map<String,String> requestHeader,Object object){
+		return send(EnumHttpRequestMethod.POST,url,requestHeader,object);
+	}
+	
+	public static HttpResponse send(EnumHttpRequestMethod enumHttpRequestMethod,String url,Map<String,String> requestHeader,Object object){
 		HttpClient httpClient = new HttpClient();
-		GetMethod getMethod = null;
-		StringBuilder responseBodyStr = new StringBuilder();
+		HttpMethodBase httpMethodBase = null;
+		StringBuilder responseBody = new StringBuilder();
 		InputStream inputStream = null;
 		BufferedReader br = null;
 		try {
-			String lastUrl = url+getParams(object);
-			System.out.println("url:"+lastUrl);
-			getMethod = new GetMethod(lastUrl);
-			setRequestHeader(getMethod, requestHeader);
-			httpClient.executeMethod(getMethod);
-			inputStream = getMethod.getResponseBodyAsStream();  
+			httpMethodBase = getHttpMethod(enumHttpRequestMethod, url, object);
+			setRequestHeader(httpMethodBase, requestHeader);
+			httpClient.executeMethod(httpMethodBase);
+			if(HttpStatus.SC_OK != httpMethodBase.getStatusCode())throw new HttpProxyException("请求失败");
+			inputStream = httpMethodBase.getResponseBodyAsStream();  
 		    br = new BufferedReader(new InputStreamReader(inputStream));  
 		    String str= null;  
 		    while((str = br.readLine()) != null){  
-		    	responseBodyStr.append(str);  
+		    	responseBody.append(str);  
 		    }
-		    return new HttpResponse(responseBodyStr.toString());
+		    return new HttpResponse(responseBody.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			String msg = "errorMsg:"+e.getMessage();
-			if(getMethod!=null){
-				msg +=",statusCode:"+getMethod.getStatusCode()+",responseBody:"+responseBodyStr.toString();
+			if(httpMethodBase!=null){
+				msg +=",statusCode:"+httpMethodBase.getStatusCode()+",responseBody:"+responseBody.toString();
 			}
 			return new HttpResponse(msg,EnumHttpStatus.STATUS500.getStatus());
 		} finally {
@@ -66,101 +89,11 @@ public class HttpClientUtils {
 					e.printStackTrace();
 				}
 			}
-			if(getMethod!=null){
-				getMethod.releaseConnection();
-				getMethod = null;
+			if(httpMethodBase!=null){
+				httpMethodBase.releaseConnection();
+				httpMethodBase = null;
 			}
 		}
-	}
-	
-	public static String doGet(String url,Map<String,String> requestHeader,Object object) {
-		HttpClient httpClient = new HttpClient();
-		GetMethod getMethod = null;
-		StringBuilder responseBodyStr = new StringBuilder();
-		InputStream inputStream = null;
-		BufferedReader br = null;
-		try {
-			String lastUrl = url+getParams(object);
-			System.out.println("url:"+lastUrl);
-			getMethod = new GetMethod(lastUrl);
-			setRequestHeader(getMethod, requestHeader);
-			httpClient.executeMethod(getMethod);
-			inputStream = getMethod.getResponseBodyAsStream();  
-		    br = new BufferedReader(new InputStreamReader(inputStream));  
-		    String str= "";  
-		    while((str = br.readLine()) != null){  
-		    	responseBodyStr.append(str);  
-		    }
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(br!=null){
-				try {
-					br.close();
-					br = null;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if(inputStream!=null){
-				try {
-					inputStream.close();
-					inputStream =null;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if(getMethod!=null){
-				getMethod.releaseConnection();
-				getMethod = null;
-			}
-		}
-        return responseBodyStr.toString();
-    }
-	
-	public static String doPost(String url,Map<String,String> requestHeader,Object object){
-		HttpClient httpClient = new HttpClient();
-		PostMethod postMethod = null;
-		StringBuilder responseBodyStr = new StringBuilder();
-		InputStream inputStream = null;
-		BufferedReader br = null;
-		try {
-			postMethod = new PostMethod(url);
-			setRequestHeader(postMethod, requestHeader);
-			setParams(postMethod, object);
-			httpClient.executeMethod(postMethod);
-			inputStream = postMethod.getResponseBodyAsStream();  
-		    br = new BufferedReader(new InputStreamReader(inputStream)); 
-		    System.out.println(postMethod.getResponseHeaders());
-		    String str= "";  
-		    while((str = br.readLine()) != null){  
-		    	responseBodyStr.append(str);  
-		    }
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(br!=null){
-				try {
-					br.close();
-					br = null;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if(inputStream!=null){
-				try {
-					inputStream.close();
-					inputStream =null;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if(postMethod!=null){
-				postMethod.releaseConnection();
-				postMethod = null;
-			}
-		}
-        return responseBodyStr.toString();
 	}
 	
 	private static void setRequestHeader(HttpMethodBase httpMethodBase,Map<String,String> requestHeader){
@@ -176,12 +109,7 @@ public class HttpClientUtils {
 		}
 	}
 	
-	/**
-	 * 获取请求参数
-	 * @param object
-	 * @return
-	 */
-	public static String getParams(Object object){
+	public static String setParams(Object object){
 		if(object==null)return "";
 		StringBuilder sb = new StringBuilder();
 		JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(object));

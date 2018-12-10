@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import com.alibaba.fastjson.JSONObject;
 import com.edward1iao.proxy.annotations.HttpProxy;
 import com.edward1iao.proxy.exception.HttpProxyException;
+import com.edward1iao.proxy.model.HttpResponse;
 import com.edward1iao.proxy.utils.HttpClientUtils;
 
 public class HttpProxyHandler implements InvocationHandler {
@@ -28,13 +29,14 @@ public class HttpProxyHandler implements InvocationHandler {
         		}
         	}
         }
-        String responseBodyStr = null;
+        HttpResponse httpResponse = null;
         if(httpProxy!=null) {
-        	responseBodyStr = HttpClientUtils.send(httpProxy.requestMethod(),httpProxy.URL(), null,args==null?null:args[0]);
+        	httpResponse = HttpClientUtils.send(httpProxy.requestMethod(),httpProxy.URL(), null,args==null?null:args[0]);
         }else{
         	throw new HttpProxyException("非http请求代理类");
         }
         System.out.println("接口方法调用结束");
-        return JSONObject.parseObject(responseBodyStr,method.getReturnType());    
+        if(String.class == method.getReturnType()) return httpResponse.getResponseBody();
+        return JSONObject.parseObject(httpResponse.getResponseBody(),method.getReturnType());    
     }
 }

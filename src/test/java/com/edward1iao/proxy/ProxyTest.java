@@ -11,7 +11,7 @@ public class ProxyTest
     @Test
     public void test()
     {
-    	System.out.println(ProxyFactory.getInstance(ITest.class, HttpProxyHandler.class).getTest1());
+    	System.out.println(ProxyFactory.getInstance(ITest.class, HttpProxyHandler.class).getTest0());
 		System.out.println(ProxyFactory.ITEST.getTest4(new TestModel("adsf","asdfddd")));
     }
 }
