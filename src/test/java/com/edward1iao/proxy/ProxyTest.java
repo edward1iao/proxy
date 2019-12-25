@@ -20,7 +20,7 @@ public class ProxyTest
     	String doGet();
     }
     interface IMoni{
-    	@HttpProxy(URL="http://172.29.224.89/framework/httpPostProxy/",requestMethod=EnumHttpRequestMethod.POST)
+    	@HttpProxy(URL="http://127.0.0.1/framework/httpPostProxy/",requestMethod=EnumHttpRequestMethod.POST)
     	TestModel httpPostProxy(TestModel testModel)throws HttpProxyException;
     }
 }
